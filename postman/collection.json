@@ -1,0 +1,36 @@
+{
+  "info": {
+    "name": "API Automation Demo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [{"key": "baseUrl", "value": "http://127.0.0.1:8000"}],
+  "item": [
+    {
+      "name": "Health check",
+      "request": {"method": "GET", "url": "{{baseUrl}}/health"},
+      "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+        "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+        "pm.test('status is ok', () => pm.expect(pm.response.json().status).to.eql('ok'));"
+      ]}}]
+    },
+    {
+      "name": "Create item",
+      "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\"name\":\"keyboard\",\"quantity\":2}"},
+        "url": "{{baseUrl}}/items"},
+      "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+        "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+        "pm.test('response has id', () => pm.expect(pm.response.json()).to.have.property('id'));"
+      ]}}]
+    },
+    {
+      "name": "Invalid quantity",
+      "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\"name\":\"mouse\",\"quantity\":0}"},
+        "url": "{{baseUrl}}/items"},
+      "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+        "pm.test('HTTP 422 validation error', () => pm.response.to.have.status(422));"
+      ]}}]
+    }
+  ]
+}
